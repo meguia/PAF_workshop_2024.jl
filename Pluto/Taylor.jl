@@ -18,19 +18,19 @@ end
 using PlutoUI, Plots, Symbolics, Latexify, LaTeXStrings
 
 # ╔═╡ 8002c179-ca6f-41fc-b13b-46c5423fa3bc
-@variables x a b c P;
+@variables x a;
 
 # ╔═╡ c5b7b753-6fd7-45fa-ac08-50cba417c3ac
 md"""
 # Taylor Series
-write the function here using x as a variable here without parameters
+Write the function here using x as a variable here without parameters.
 """	
 
 # ╔═╡ 98ffe15a-be1f-44bb-94b8-074b8530a65b
-f =cos(x)
+f =cos(x);
 
 # ╔═╡ 7fb84e83-cdf1-4fad-849d-f55a7898bb5c
-dx = Differential(x)
+dx = Differential(x);
 
 # ╔═╡ 904864b4-b6ac-4aa6-a630-26127730bd72
 begin
@@ -66,6 +66,7 @@ end;
 # ╔═╡ 40e6ea0f-444f-4a0d-be52-fd96a8bec76d
 par_widget = @bind par PlutoUI.combine() do Child
 	md"""
+	Then slide the value of a to evauate the Taylor expansion (up to order N) on that point \
 	a : $(Child("a", Slider(wind.x1:0.01:wind.x2,default=1.0;show_value=true))) $sp
 	N : $(Child("N", Slider(0:1:5,default=1;show_value=true)))
 	""" 
@@ -93,7 +94,7 @@ end;
 # ╔═╡ 65db4e7d-7306-4136-a414-bb69a77f435a
 tex_widget = PlutoUI.ExperimentalLayout.vbox([
 		latexstring("f(x) = ",latexify(f)),
-		latexstring(lstring)
+		latexstring(lstring),
 	]);
 
 # ╔═╡ b784972e-ac45-4cb9-9708-ef828ca079aa
@@ -1848,7 +1849,7 @@ version = "1.4.1+1"
 # ╟─8f7367ae-8757-4c0a-8bb7-0e79561bc133
 # ╟─b784972e-ac45-4cb9-9708-ef828ca079aa
 # ╟─65db4e7d-7306-4136-a414-bb69a77f435a
-# ╟─40e6ea0f-444f-4a0d-be52-fd96a8bec76d
+# ╠═40e6ea0f-444f-4a0d-be52-fd96a8bec76d
 # ╟─f95de1fa-fef7-4620-966e-e31dda738ea1
 # ╟─0a51519a-0faf-4997-b230-b79d18902b69
 # ╟─afb14697-6bef-4f7e-a39a-fd6ad82b668c
