@@ -15,55 +15,74 @@ macro bind(def, element)
 end
 
 # ╔═╡ b615a970-8f85-11ef-1c13-e9ed82dd14ce
-using PlutoUI, Plots, Symbolics, Nemo, Latexify
+using PlutoUI, Plots, Symbolics, Latexify, LaTeXStrings
 
 # ╔═╡ 8002c179-ca6f-41fc-b13b-46c5423fa3bc
 @variables x a b c;
 
+# ╔═╡ c5b7b753-6fd7-45fa-ac08-50cba417c3ac
+md"""
+# Derivative 
+write the function here using x as a variable here with up to three parameters: a, b ,c
+for example f=a*x^2+bx+c
+"""	
+
 # ╔═╡ 98ffe15a-be1f-44bb-94b8-074b8530a65b
-f = sin(a*x)+b*x^2+c;
+f = a*x^2+b*x-c;
 
 # ╔═╡ 7fb84e83-cdf1-4fad-849d-f55a7898bb5c
 dx = Differential(x);
 
 # ╔═╡ 904864b4-b6ac-4aa6-a630-26127730bd72
-dfdx = expand_derivatives(dx(f));
+dfdx = simplify(expand_derivatives(dx(f)));
 
 # ╔═╡ 6dddcd75-96df-4fab-be2b-1728f268adf5
 npars = size(Symbolics.get_variables(f))[1]-1;
 
 # ╔═╡ 65db4e7d-7306-4136-a414-bb69a77f435a
 tex_widget = PlutoUI.ExperimentalLayout.vbox([
-		latexify(f),
-		latexify(dfdx)
+		latexstring("f(x) = ",latexify(f)),
+		latexstring("\\frac{df}{dx}(x) = ",latexify(dfdx))
 	]);
+
+# ╔═╡ ca01ea8f-4b35-4971-af37-31fbeaaa6762
+par_range = 0.01:0.01:1.0;
 
 # ╔═╡ 0a51519a-0faf-4997-b230-b79d18902b69
 sp = html"&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
+
+# ╔═╡ f95de1fa-fef7-4620-966e-e31dda738ea1
+window_widget = @bind wind PlutoUI.combine() do Child
+	md"""
+	xmin : $(Child("x1", Slider(-4.0:0.1:-0.01,default=-3;show_value=true))) $sp
+	xmax : $(Child("x2", Slider(0.01:0.1:4.0,default=3.0;show_value=true))) $sp
+	ylimit : $(Child("ylimit", CheckBox())) 
+	""" 
+end;
 
 # ╔═╡ e77f1171-c489-4a81-849a-16e107b3bb50
 if size(Symbolics.get_variables(f))[1] == 2
 	par_widget = @bind par PlutoUI.combine() do Child
 		md"""
-		a : $(Child("a", Slider(-1.0:0.01:1.0,default=0.1;show_value=true))) \
-		P : $(Child("P", Slider(-3.0:0.01:3.0,default=1.0;show_value=true)))
+		a : $(Child("a", Slider(par_range,default=0.1;show_value=true))) \
+		P : $(Child("P", Slider(wind.x1:0.01:wind.x2,default=1.0;show_value=true)))
 		""" 
 	end;
 elseif size(Symbolics.get_variables(f))[1] == 3
 	par_widget = @bind par PlutoUI.combine() do Child
 		md"""
-		a : $(Child("a", Slider(-1.0:0.01:1.0,default=0.1;show_value=true))) $sp
-		b : $(Child("b", Slider(-4:0.1:4.0,default=0.0;show_value=true))) \
-		P : $(Child("P", Slider(-3.0:0.01:3.0,default=1.0;show_value=true)))
+		a : $(Child("a", Slider(par_range,default=0.1;show_value=true))) $sp
+		b : $(Child("b", Slider(par_range,default=0.1;show_value=true))) \
+		P : $(Child("P", Slider(wind.x1:0.01:wind.x2,default=1.0;show_value=true)))
 		""" 
 	end;
 elseif size(Symbolics.get_variables(f))[1] == 4
 	par_widget = @bind par PlutoUI.combine() do Child
 		md"""
-		a : $(Child("a", Slider(-1.0:0.01:1.0,default=0.1;show_value=true))) $sp
-		b : $(Child("b", Slider(-4:0.1:4.0,default=0.0;show_value=true))) $sp
-		c : $(Child("c", Slider(-4:0.1:4.0,default=0.0;show_value=true))) \
-		P : $(Child("P", Slider(-3.0:0.01:3.0,default=1.0;show_value=true)))
+		a : $(Child("a", Slider(par_range,default=0.1;show_value=true))) $sp
+		b : $(Child("b", Slider(par_range,default=0.1;show_value=true))) $sp
+		c : $(Child("c", Slider(par_range,default=0.1;show_value=true))) \
+		P : $(Child("P", Slider(wind.x1:0.01:wind.x2,default=1.0;show_value=true)))
 		""" 
 	end;
 end;
@@ -82,15 +101,23 @@ begin
 	end	
 	sP = Symbolics.value(substitute(dfdx_subs, Dict(x=>par.P)))
 	fP = Symbolics.value(substitute(f_subs, Dict(x=>par.P)))
-	maxf = Symbolics.value(maximum([substitute(f_subs, Dict(x=>y)) for y in -4:0.01:4]))
-	minf= Symbolics.value(minimum([substitute(f_subs, Dict(x=>y)) for y in -4:0.01:4]))
+	farr = [Symbolics.value(substitute(f_subs, Dict(x=>y))) for y in wind.x1:0.01:wind.x2]
+	maxf = maximum(farr[.!isnan.(farr)])
+	minf= minimum(farr[.!isnan.(farr)])
 	margin = 0.1*(maxf-minf)
-	plot_widget = plot(f_subs,label="Function")
-	scatter!([par.P],[fP],ms=4,c=:black,label="Point")
-	plot!(sP*(x-par.P)+fP,c=:red,label="Tangent")
-	annotate!(par.P+0.5, fP, string(round(sP,sigdigits=3)), :red)
-	xlims!(-4,4)
-	ylims!(minf-margin,maxf+margin)
+	plot_widget = plot(f_subs,label=latexify(f_subs,env=:inline))
+	plot!(sP*(x-par.P)+fP,c=:red,label=latexify(dfdx_subs,env=:inline))
+	scatter!([par.P],[fP],ms=4,c=:black,label=latexify("P"))
+	annotate!(par.P+0.5, fP, latexify(string(round(sP,sigdigits=3))), :red)
+	plot!([wind.x1,wind.x2],[0,0],ls=:dash,c=:black,label="")
+	xlims!(wind.x1,wind.x2)
+	if wind.ylimit
+		ylims!(wind.x1,wind.x2)
+		plot!([0,0],[wind.x1,wind.x2],ls=:dash,c=:black,label="")
+	else	
+		ylims!(minf-margin,maxf+margin)
+		plot!([0,0],[minf-margin,maxf+margin],ls=:dash,c=:black,label="")
+	end	
 end;
 
 # ╔═╡ 935cb98a-7268-4de1-86f4-24b7dd1b5549
@@ -99,7 +126,8 @@ begin
 	PlutoUI.ExperimentalLayout.vbox([
 		tex_widget,
 		par_widget,
-		plot_widget
+		plot_widget,
+		window_widget
 	])
 end
 
@@ -123,15 +151,15 @@ end
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Latexify = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-Nemo = "2edaba10-b0f1-5616-af89-8c11ac63239a"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 
 [compat]
+LaTeXStrings = "~1.4.0"
 Latexify = "~0.16.5"
-Nemo = "~0.46.2"
 Plots = "~1.40.8"
 PlutoUI = "~0.7.60"
 Symbolics = "~6.15.1"
@@ -143,7 +171,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.4"
 manifest_format = "2.0"
-project_hash = "194754d00d17d6ca9ba29f7d91d8c1e2c2c11906"
+project_hash = "82c961114abea42a26fe74a9c91ea23f785b448e"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "eea5d80188827b35333801ef97a40c2ed653b081"
@@ -157,12 +185,6 @@ version = "1.9.0"
     [deps.ADTypes.weakdeps]
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     EnzymeCore = "f151be2c-9106-41f4-ab19-57ee4f262869"
-
-[[deps.AbstractAlgebra]]
-deps = ["InteractiveUtils", "LinearAlgebra", "MacroTools", "Preferences", "Random", "RandomExtensions", "SparseArrays", "Test"]
-git-tree-sha1 = "f2a57c180f34a96825210cb3e0864a700f2ea5f2"
-uuid = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
-version = "0.42.7"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -521,12 +543,6 @@ git-tree-sha1 = "466d45dc38e15794ec7d5d63ec03d776a9aff36e"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
 version = "4.4.4+1"
 
-[[deps.FLINT_jll]]
-deps = ["Artifacts", "GMP_jll", "JLLWrappers", "Libdl", "MPFR_jll", "OpenBLAS32_jll"]
-git-tree-sha1 = "4bde447e7bc6de73de36870fc942df02f4dd44b5"
-uuid = "e134572f-a0d5-539d-bddf-3cad8db41a82"
-version = "300.100.300+0"
-
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
@@ -591,11 +607,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jl
 git-tree-sha1 = "532f9126ad901533af1d4f5c198867227a7bb077"
 uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
 version = "3.4.0+1"
-
-[[deps.GMP_jll]]
-deps = ["Artifacts", "Libdl"]
-uuid = "781609d7-10c4-51f6-84f2-b8444358ff6d"
-version = "6.2.1+6"
 
 [[deps.GPUArraysCore]]
 deps = ["Adapt"]
@@ -902,11 +913,6 @@ git-tree-sha1 = "bc38dff0548128765760c79eb7388a4b37fae2c8"
 uuid = "d8e11817-5142-5d16-987a-aa16d5891078"
 version = "0.4.17"
 
-[[deps.MPFR_jll]]
-deps = ["Artifacts", "GMP_jll", "Libdl"]
-uuid = "3a97d323-0669-5f0c-9066-3539efd106a3"
-version = "4.2.0+1"
-
 [[deps.MacroTools]]
 deps = ["Markdown", "Random"]
 git-tree-sha1 = "2fa9ee3e63fd3a4f7a9a4f4744a52f4856de82df"
@@ -964,12 +970,6 @@ git-tree-sha1 = "0877504529a3e5c3343c6f8b4c0381e57e4387e4"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "1.0.2"
 
-[[deps.Nemo]]
-deps = ["AbstractAlgebra", "FLINT_jll", "Libdl", "LinearAlgebra", "Pkg", "Random", "RandomExtensions", "SHA"]
-git-tree-sha1 = "71cff3f853e1cb2c6d5d75ab5e0092058936c460"
-uuid = "2edaba10-b0f1-5616-af89-8c11ac63239a"
-version = "0.46.2"
-
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
@@ -979,12 +979,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "887579a3eb005446d514ab7aeac5d1d027658b8f"
 uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
 version = "1.3.5+1"
-
-[[deps.OpenBLAS32_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "6065c4cff8fee6c6770b277af45d5082baacdba1"
-uuid = "656ef2d0-ae68-5445-9ca0-591084a874a2"
-version = "0.3.24+0"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
@@ -1172,12 +1166,6 @@ uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 [[deps.Random]]
 deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-
-[[deps.RandomExtensions]]
-deps = ["Random", "SparseArrays"]
-git-tree-sha1 = "b8a399e95663485820000f26b6a43c794e166a49"
-uuid = "fb686558-2515-59ef-acaa-46db3789a887"
-version = "0.4.4"
 
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
@@ -1852,18 +1840,21 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─b615a970-8f85-11ef-1c13-e9ed82dd14ce
+# ╠═b615a970-8f85-11ef-1c13-e9ed82dd14ce
 # ╠═8002c179-ca6f-41fc-b13b-46c5423fa3bc
+# ╟─c5b7b753-6fd7-45fa-ac08-50cba417c3ac
 # ╠═98ffe15a-be1f-44bb-94b8-074b8530a65b
 # ╟─935cb98a-7268-4de1-86f4-24b7dd1b5549
 # ╟─7fb84e83-cdf1-4fad-849d-f55a7898bb5c
 # ╟─904864b4-b6ac-4aa6-a630-26127730bd72
 # ╟─6dddcd75-96df-4fab-be2b-1728f268adf5
-# ╟─7ceea0d1-8939-4b3b-bf2b-a1b1760cfa4a
 # ╟─65db4e7d-7306-4136-a414-bb69a77f435a
+# ╟─7ceea0d1-8939-4b3b-bf2b-a1b1760cfa4a
 # ╟─e77f1171-c489-4a81-849a-16e107b3bb50
+# ╟─f95de1fa-fef7-4620-966e-e31dda738ea1
+# ╟─ca01ea8f-4b35-4971-af37-31fbeaaa6762
 # ╟─0a51519a-0faf-4997-b230-b79d18902b69
-# ╠═afb14697-6bef-4f7e-a39a-fd6ad82b668c
+# ╟─afb14697-6bef-4f7e-a39a-fd6ad82b668c
 # ╟─9796cc0f-6386-423f-8e84-aa55d88f4858
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
