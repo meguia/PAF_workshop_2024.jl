@@ -18,7 +18,7 @@ end
 using PlutoUI, Plots, Symbolics, Latexify, LaTeXStrings
 
 # ╔═╡ 8002c179-ca6f-41fc-b13b-46c5423fa3bc
-@variables x a b c;
+@variables x a b c P;
 
 # ╔═╡ c5b7b753-6fd7-45fa-ac08-50cba417c3ac
 md"""
@@ -29,6 +29,9 @@ for example f=a*x^2+bx+c
 
 # ╔═╡ 98ffe15a-be1f-44bb-94b8-074b8530a65b
 f = sin(x)
+
+# ╔═╡ c92d7364-54b7-44fb-a491-0d1bdb0891cf
+f0 = sin(P)
 
 # ╔═╡ 935cb98a-7268-4de1-86f4-24b7dd1b5549
 # ╠═╡ disabled = true
@@ -45,22 +48,25 @@ end
   ╠═╡ =#
 
 # ╔═╡ 7fb84e83-cdf1-4fad-849d-f55a7898bb5c
-dx = Differential(x)
-
-# ╔═╡ ebcfc75c-35cc-4fc6-a2ad-537ac14cc36d
-simplify(expand_derivatives(dx(dx(f))))
+dx = Differential(P)
 
 # ╔═╡ 904864b4-b6ac-4aa6-a630-26127730bd72
-dfdx = expand_derivatives(dx(f))
+dfdx = expand_derivatives(dx(f0))
 
 # ╔═╡ 90fdd01f-f365-4adb-b483-f9ffb6bfadda
-dfdx2 = expand_derivatives(dx(dx(f)))
-
-# ╔═╡ ab5b960e-9e5e-4d14-b06b-993af83f7d2d
-f + dfdx + dfdx2/2
+dfdx2 = expand_derivatives(dx(dx(f0)))
 
 # ╔═╡ d6e2025d-b812-495a-ba87-2acca4e83901
-f + dfdx - dfdx2/2  
+f0 + dfdx - dfdx2/2  
+
+# ╔═╡ d52a824a-6203-4619-a02e-8165e6ccf743
+begin
+	l1 = latexstring("f(x) \\approx ",latexify(f0),"+")
+	l2 = latexstring(latexify(dfdx),"(x-P)+")
+end	
+
+# ╔═╡ fc3c2c19-fc85-4b63-908e-f391bcca6f61
+latexify(dfdx)
 
 # ╔═╡ 65db4e7d-7306-4136-a414-bb69a77f435a
 tex_widget = PlutoUI.ExperimentalLayout.vbox([
@@ -1837,13 +1843,14 @@ version = "1.4.1+1"
 # ╠═8002c179-ca6f-41fc-b13b-46c5423fa3bc
 # ╟─c5b7b753-6fd7-45fa-ac08-50cba417c3ac
 # ╠═98ffe15a-be1f-44bb-94b8-074b8530a65b
+# ╠═c92d7364-54b7-44fb-a491-0d1bdb0891cf
 # ╟─935cb98a-7268-4de1-86f4-24b7dd1b5549
 # ╠═7fb84e83-cdf1-4fad-849d-f55a7898bb5c
-# ╠═ebcfc75c-35cc-4fc6-a2ad-537ac14cc36d
 # ╠═904864b4-b6ac-4aa6-a630-26127730bd72
 # ╠═90fdd01f-f365-4adb-b483-f9ffb6bfadda
-# ╠═ab5b960e-9e5e-4d14-b06b-993af83f7d2d
 # ╠═d6e2025d-b812-495a-ba87-2acca4e83901
+# ╠═d52a824a-6203-4619-a02e-8165e6ccf743
+# ╠═fc3c2c19-fc85-4b63-908e-f391bcca6f61
 # ╠═65db4e7d-7306-4136-a414-bb69a77f435a
 # ╠═7ceea0d1-8939-4b3b-bf2b-a1b1760cfa4a
 # ╠═f95de1fa-fef7-4620-966e-e31dda738ea1
