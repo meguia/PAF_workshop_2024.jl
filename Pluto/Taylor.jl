@@ -28,16 +28,39 @@ for example f=a*x^2+bx+c
 """	
 
 # ╔═╡ 98ffe15a-be1f-44bb-94b8-074b8530a65b
-f = sin(a*x);
+f = sin(x)
+
+# ╔═╡ 935cb98a-7268-4de1-86f4-24b7dd1b5549
+# ╠═╡ disabled = true
+#=╠═╡
+begin 
+	#dash_cell =  PlutoRunner.currently_running_cell_id[] |> string
+	PlutoUI.ExperimentalLayout.vbox([
+		tex_widget,
+		par_widget,
+		plot_widget,
+		window_widget
+	])
+end
+  ╠═╡ =#
 
 # ╔═╡ 7fb84e83-cdf1-4fad-849d-f55a7898bb5c
-dx = Differential(x);
+dx = Differential(x)
+
+# ╔═╡ ebcfc75c-35cc-4fc6-a2ad-537ac14cc36d
+simplify(expand_derivatives(dx(dx(f))))
 
 # ╔═╡ 904864b4-b6ac-4aa6-a630-26127730bd72
-dfdx = simplify(expand_derivatives(dx(f)));
+dfdx = expand_derivatives(dx(f))
 
-# ╔═╡ 6dddcd75-96df-4fab-be2b-1728f268adf5
-npars = size(Symbolics.get_variables(f))[1]-1;
+# ╔═╡ 90fdd01f-f365-4adb-b483-f9ffb6bfadda
+dfdx2 = expand_derivatives(dx(dx(f)))
+
+# ╔═╡ ab5b960e-9e5e-4d14-b06b-993af83f7d2d
+f + dfdx + dfdx2/2
+
+# ╔═╡ d6e2025d-b812-495a-ba87-2acca4e83901
+f + dfdx - dfdx2/2  
 
 # ╔═╡ 65db4e7d-7306-4136-a414-bb69a77f435a
 tex_widget = PlutoUI.ExperimentalLayout.vbox([
@@ -45,52 +68,9 @@ tex_widget = PlutoUI.ExperimentalLayout.vbox([
 		latexstring("\\frac{df}{dx}(x) = ",latexify(dfdx))
 	]);
 
-# ╔═╡ ca01ea8f-4b35-4971-af37-31fbeaaa6762
-par_range = 0.01:0.01:1.0;
-
-# ╔═╡ 0a51519a-0faf-4997-b230-b79d18902b69
-sp = html"&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
-
-# ╔═╡ f95de1fa-fef7-4620-966e-e31dda738ea1
-window_widget = @bind wind PlutoUI.combine() do Child
-	md"""
-	xmin : $(Child("x1", Slider(-4.0:0.1:-0.01,default=-3;show_value=true))) $sp
-	xmax : $(Child("x2", Slider(0.01:0.1:4.0,default=3.0;show_value=true))) $sp
-	ylimit : $(Child("ylimit", CheckBox())) 
-	""" 
-end;
-
-# ╔═╡ e77f1171-c489-4a81-849a-16e107b3bb50
-if size(Symbolics.get_variables(f))[1] == 2
-	par_widget = @bind par PlutoUI.combine() do Child
-		md"""
-		a : $(Child("a", Slider(par_range,default=0.1;show_value=true))) \
-		P : $(Child("P", Slider(wind.x1:0.01:wind.x2,default=1.0;show_value=true))) $sp
-		plot derivative : $(Child("plotd", CheckBox()))
-		""" 
-	end;
-elseif size(Symbolics.get_variables(f))[1] == 3
-	par_widget = @bind par PlutoUI.combine() do Child
-		md"""
-		a : $(Child("a", Slider(par_range,default=0.1;show_value=true))) $sp
-		b : $(Child("b", Slider(par_range,default=0.1;show_value=true))) \
-		P : $(Child("P", Slider(wind.x1:0.01:wind.x2,default=1.0;show_value=true))) $sp
-		plot derivative : $(Child("plotd", CheckBox()))
-		""" 
-	end;
-elseif size(Symbolics.get_variables(f))[1] == 4
-	par_widget = @bind par PlutoUI.combine() do Child
-		md"""
-		a : $(Child("a", Slider(par_range,default=0.1;show_value=true))) $sp
-		b : $(Child("b", Slider(par_range,default=0.1;show_value=true))) $sp
-		c : $(Child("c", Slider(par_range,default=0.1;show_value=true))) \
-		P : $(Child("P", Slider(wind.x1:0.01:wind.x2,default=1.0;show_value=true))) $sp
-		plot derivative : $(Child("plotd", CheckBox()))
-		""" 
-	end;
-end;
-
 # ╔═╡ 7ceea0d1-8939-4b3b-bf2b-a1b1760cfa4a
+# ╠═╡ disabled = true
+#=╠═╡
 begin
 	if npars==1
 		f_subs = substitute(f, Dict(a=>par.a))
@@ -127,17 +107,22 @@ begin
 		plot!([0,0],[minf-margin,maxf+margin],ls=:dash,c=:black,label="")
 	end	
 end;
+  ╠═╡ =#
 
-# ╔═╡ 935cb98a-7268-4de1-86f4-24b7dd1b5549
-begin 
-	#dash_cell =  PlutoRunner.currently_running_cell_id[] |> string
-	PlutoUI.ExperimentalLayout.vbox([
-		tex_widget,
-		par_widget,
-		plot_widget,
-		window_widget
-	])
-end
+# ╔═╡ ca01ea8f-4b35-4971-af37-31fbeaaa6762
+par_range = 0.01:0.01:1.0;
+
+# ╔═╡ 0a51519a-0faf-4997-b230-b79d18902b69
+sp = html"&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
+
+# ╔═╡ f95de1fa-fef7-4620-966e-e31dda738ea1
+window_widget = @bind wind PlutoUI.combine() do Child
+	md"""
+	xmin : $(Child("x1", Slider(-4.0:0.1:-0.01,default=-3;show_value=true))) $sp
+	xmax : $(Child("x2", Slider(0.01:0.1:4.0,default=3.0;show_value=true))) $sp
+	ylimit : $(Child("ylimit", CheckBox())) 
+	""" 
+end;
 
 # ╔═╡ afb14697-6bef-4f7e-a39a-fd6ad82b668c
 html"""
@@ -1854,11 +1839,13 @@ version = "1.4.1+1"
 # ╠═98ffe15a-be1f-44bb-94b8-074b8530a65b
 # ╟─935cb98a-7268-4de1-86f4-24b7dd1b5549
 # ╠═7fb84e83-cdf1-4fad-849d-f55a7898bb5c
+# ╠═ebcfc75c-35cc-4fc6-a2ad-537ac14cc36d
 # ╠═904864b4-b6ac-4aa6-a630-26127730bd72
-# ╠═6dddcd75-96df-4fab-be2b-1728f268adf5
+# ╠═90fdd01f-f365-4adb-b483-f9ffb6bfadda
+# ╠═ab5b960e-9e5e-4d14-b06b-993af83f7d2d
+# ╠═d6e2025d-b812-495a-ba87-2acca4e83901
 # ╠═65db4e7d-7306-4136-a414-bb69a77f435a
 # ╠═7ceea0d1-8939-4b3b-bf2b-a1b1760cfa4a
-# ╠═e77f1171-c489-4a81-849a-16e107b3bb50
 # ╠═f95de1fa-fef7-4620-966e-e31dda738ea1
 # ╟─ca01ea8f-4b35-4971-af37-31fbeaaa6762
 # ╟─0a51519a-0faf-4997-b230-b79d18902b69
