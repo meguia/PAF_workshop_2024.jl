@@ -22,101 +22,34 @@ using PlutoUI, Plots, Symbolics, Latexify, LaTeXStrings
 
 # ╔═╡ c5b7b753-6fd7-45fa-ac08-50cba417c3ac
 md"""
-# Derivative 
-write the function here using x as a variable here with up to three parameters: a, b ,c
-for example f=a*x^2+bx+c
+# Taylor Series
+write the function here using x as a variable here without parameters
 """	
 
 # ╔═╡ 98ffe15a-be1f-44bb-94b8-074b8530a65b
-f = sin(x)
-
-# ╔═╡ c92d7364-54b7-44fb-a491-0d1bdb0891cf
-f0 = sin(P)
-
-# ╔═╡ 935cb98a-7268-4de1-86f4-24b7dd1b5549
-# ╠═╡ disabled = true
-#=╠═╡
-begin 
-	#dash_cell =  PlutoRunner.currently_running_cell_id[] |> string
-	PlutoUI.ExperimentalLayout.vbox([
-		tex_widget,
-		par_widget,
-		plot_widget,
-		window_widget
-	])
-end
-  ╠═╡ =#
+f =cos(x)
 
 # ╔═╡ 7fb84e83-cdf1-4fad-849d-f55a7898bb5c
-dx = Differential(P)
+dx = Differential(x)
 
 # ╔═╡ 904864b4-b6ac-4aa6-a630-26127730bd72
-dfdx = expand_derivatives(dx(f0))
-
-# ╔═╡ 90fdd01f-f365-4adb-b483-f9ffb6bfadda
-dfdx2 = expand_derivatives(dx(dx(f0)))
-
-# ╔═╡ d6e2025d-b812-495a-ba87-2acca4e83901
-f0 + dfdx - dfdx2/2  
-
-# ╔═╡ d52a824a-6203-4619-a02e-8165e6ccf743
 begin
-	l1 = latexstring("f(x) \\approx ",latexify(f0),"+")
-	l2 = latexstring(latexify(dfdx),"(x-P)+")
-end	
-
-# ╔═╡ fc3c2c19-fc85-4b63-908e-f391bcca6f61
-latexify(dfdx)
-
-# ╔═╡ 65db4e7d-7306-4136-a414-bb69a77f435a
-tex_widget = PlutoUI.ExperimentalLayout.vbox([
-		latexstring("f(x) = ",latexify(f)),
-		latexstring("\\frac{df}{dx}(x) = ",latexify(dfdx))
-	]);
-
-# ╔═╡ 7ceea0d1-8939-4b3b-bf2b-a1b1760cfa4a
-# ╠═╡ disabled = true
-#=╠═╡
-begin
-	if npars==1
-		f_subs = substitute(f, Dict(a=>par.a))
-		dfdx_subs = substitute(dfdx, Dict(a=>par.a))
-	elseif npars==2	
-		f_subs = substitute(f, Dict(a=>par.a,b=>par.b))
-		dfdx_subs = substitute(dfdx, Dict(a=>par.a,b=>par.b))
-	elseif npars==3	
-		f_subs = substitute(f, Dict(a=>par.a,b=>par.b,c=>par.c))
-		dfdx_subs = substitute(dfdx, Dict(a=>par.a,b=>par.b,c=>par.c))
-	end	
-	sP = Symbolics.value(substitute(dfdx_subs, Dict(x=>par.P)))
-	fP = Symbolics.value(substitute(f_subs, Dict(x=>par.P)))
-	farr = [Symbolics.value(substitute(f_subs, Dict(x=>y))) for y in wind.x1:0.01:wind.x2]
-	maxf = maximum(farr[.!isnan.(farr)])
-	minf= minimum(farr[.!isnan.(farr)])
-	margin = 0.1*(maxf-minf)
-	plot_widget = plot(f_subs,label=latexify(f_subs,env=:inline))
-	plot!(sP*(x-par.P)+fP,c=:red,label=latexify("tangent"))
-	scatter!([par.P],[fP],ms=4,c=:black,label=latexify("P"))
-	annotate!(par.P+0.5, fP, latexify(string(round(sP,sigdigits=3))), :red)
-	if (par.plotd)
-		plot!(dfdx_subs,c=:red,ls=:dash,label=latexify(dfdx_subs,env=:inline))
-		dfdxP = Symbolics.value(substitute(dfdx_subs, Dict(x=>par.P)))
-		scatter!([par.P],[dfdxP],ms=3,c=:red,label="")
-	end	
-	plot!([wind.x1,wind.x2],[0,0],ls=:dash,c=:black,label="")
-	xlims!(wind.x1,wind.x2)
-	if wind.ylimit
-		ylims!(wind.x1,wind.x2)
-		plot!([0,0],[wind.x1,wind.x2],ls=:dash,c=:black,label="")
-	else	
-		ylims!(minf-margin,maxf+margin)
-		plot!([0,0],[minf-margin,maxf+margin],ls=:dash,c=:black,label="")
-	end	
+	dfdx = expand_derivatives(dx(f))
+	dfdx2 = expand_derivatives(dx(dfdx))
+	dfdx3 = expand_derivatives(dx(dfdx2))
+	dfdx4 = expand_derivatives(dx(dfdx3))
+	dfdx5 = expand_derivatives(dx(dfdx4))
 end;
-  ╠═╡ =#
 
-# ╔═╡ ca01ea8f-4b35-4971-af37-31fbeaaa6762
-par_range = 0.01:0.01:1.0;
+# ╔═╡ 6b5253da-78d4-4339-ba1f-85c893f1409b
+begin
+	f0 = substitute(f,Dict(x=>a))
+	dfdx0 = substitute(dfdx,Dict(x=>a))
+	dfdx20 = substitute(dfdx2,Dict(x=>a))
+	dfdx30 = substitute(dfdx3,Dict(x=>a))
+	dfdx40 = substitute(dfdx4,Dict(x=>a))
+	dfdx50 = substitute(dfdx5,Dict(x=>a))
+end;
 
 # ╔═╡ 0a51519a-0faf-4997-b230-b79d18902b69
 sp = html"&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
@@ -129,6 +62,71 @@ window_widget = @bind wind PlutoUI.combine() do Child
 	ylimit : $(Child("ylimit", CheckBox())) 
 	""" 
 end;
+
+# ╔═╡ 40e6ea0f-444f-4a0d-be52-fd96a8bec76d
+par_widget = @bind par PlutoUI.combine() do Child
+	md"""
+	a : $(Child("a", Slider(wind.x1:0.01:wind.x2,default=1.0;show_value=true))) $sp
+	N : $(Child("N", Slider(0:1:5,default=1;show_value=true)))
+	""" 
+end;
+
+# ╔═╡ 8f7367ae-8757-4c0a-8bb7-0e79561bc133
+# TAYLOR
+begin
+	flist = [f0,dfdx0,dfdx20,dfdx30,dfdx40,dfdx50]
+	xlist = ["","(x-a)","\\frac{(x-a)^2}{2!}","\\frac{(x-a)^3}{3!}","\\frac{(x-a)^4}{4!}","\\frac{(x-a)^5}{5!}"]
+	lstring = "f(x) \\approx "	
+	ftaylor = 0
+	for n = 1:par.N+1
+		s1 = latexify(flist[n],env=:raw)
+		if (n>1) && !(s1[2]== '-')
+			lstring *= "+"
+		end	
+		lstring *= s1
+		lstring *= xlist[n]
+		ftaylor += flist[n]*(x-a)^(n-1)/factorial(n-1)
+	end
+	lstring *= "+..."
+end;
+
+# ╔═╡ 65db4e7d-7306-4136-a414-bb69a77f435a
+tex_widget = PlutoUI.ExperimentalLayout.vbox([
+		latexstring("f(x) = ",latexify(f)),
+		latexstring(lstring)
+	]);
+
+# ╔═╡ b784972e-ac45-4cb9-9708-ef828ca079aa
+begin
+	fP = Symbolics.value(substitute(f, Dict(x=>par.a)))
+	farr = [Symbolics.value(substitute(f, Dict(x=>y))) for y in wind.x1:0.01:wind.x2]
+	maxf = maximum(farr[.!isnan.(farr)])
+	minf= minimum(farr[.!isnan.(farr)])
+	margin = 0.1*(maxf-minf)
+	ftaylor_subs = substitute(ftaylor,Dict(a=>par.a))
+	plot_widget = plot(f,label=latexify(f,env=:inline))
+	plot!(ftaylor_subs,label=latexify(ftaylor_subs,env=:inline))
+	scatter!([par.a],[fP],ms=4,c=:black,label=latexify("a"))
+	xlims!(wind.x1,wind.x2)
+	if wind.ylimit
+		ylims!(wind.x1,wind.x2)
+		plot!([0,0],[wind.x1,wind.x2],ls=:dash,c=:black,label="")
+	else	
+		ylims!(minf-margin,maxf+margin)
+		plot!([0,0],[minf-margin,maxf+margin],ls=:dash,c=:black,label="")
+	end	
+end;
+
+# ╔═╡ 4f828fa7-84b7-4092-b51c-fcfd5a54d9c1
+begin 
+	#dash_cell =  PlutoRunner.currently_running_cell_id[] |> string
+	PlutoUI.ExperimentalLayout.vbox([
+		tex_widget,
+		par_widget,
+		plot_widget,
+		window_widget
+	])
+end
 
 # ╔═╡ afb14697-6bef-4f7e-a39a-fd6ad82b668c
 html"""
@@ -1843,18 +1841,15 @@ version = "1.4.1+1"
 # ╠═8002c179-ca6f-41fc-b13b-46c5423fa3bc
 # ╟─c5b7b753-6fd7-45fa-ac08-50cba417c3ac
 # ╠═98ffe15a-be1f-44bb-94b8-074b8530a65b
-# ╠═c92d7364-54b7-44fb-a491-0d1bdb0891cf
-# ╟─935cb98a-7268-4de1-86f4-24b7dd1b5549
-# ╠═7fb84e83-cdf1-4fad-849d-f55a7898bb5c
-# ╠═904864b4-b6ac-4aa6-a630-26127730bd72
-# ╠═90fdd01f-f365-4adb-b483-f9ffb6bfadda
-# ╠═d6e2025d-b812-495a-ba87-2acca4e83901
-# ╠═d52a824a-6203-4619-a02e-8165e6ccf743
-# ╠═fc3c2c19-fc85-4b63-908e-f391bcca6f61
-# ╠═65db4e7d-7306-4136-a414-bb69a77f435a
-# ╠═7ceea0d1-8939-4b3b-bf2b-a1b1760cfa4a
-# ╠═f95de1fa-fef7-4620-966e-e31dda738ea1
-# ╟─ca01ea8f-4b35-4971-af37-31fbeaaa6762
+# ╟─4f828fa7-84b7-4092-b51c-fcfd5a54d9c1
+# ╟─7fb84e83-cdf1-4fad-849d-f55a7898bb5c
+# ╟─904864b4-b6ac-4aa6-a630-26127730bd72
+# ╟─6b5253da-78d4-4339-ba1f-85c893f1409b
+# ╟─8f7367ae-8757-4c0a-8bb7-0e79561bc133
+# ╟─b784972e-ac45-4cb9-9708-ef828ca079aa
+# ╟─65db4e7d-7306-4136-a414-bb69a77f435a
+# ╟─40e6ea0f-444f-4a0d-be52-fd96a8bec76d
+# ╟─f95de1fa-fef7-4620-966e-e31dda738ea1
 # ╟─0a51519a-0faf-4997-b230-b79d18902b69
 # ╟─afb14697-6bef-4f7e-a39a-fd6ad82b668c
 # ╟─9796cc0f-6386-423f-8e84-aa55d88f4858
