@@ -28,7 +28,7 @@ for example f=a*x^2+bx+c
 """	
 
 # ╔═╡ 98ffe15a-be1f-44bb-94b8-074b8530a65b
-f = sin(a*x);
+f = exp(a*x);
 
 # ╔═╡ 7fb84e83-cdf1-4fad-849d-f55a7898bb5c
 dx = Differential(x);
@@ -90,7 +90,7 @@ elseif size(Symbolics.get_variables(f))[1] == 4
 	end;
 end;
 
-# ╔═╡ 7ceea0d1-8939-4b3b-bf2b-a1b1760cfa4a
+# ╔═╡ b654e63f-6d00-439a-9c12-3260e38a2b56
 begin
 	if npars==1
 		f_subs = substitute(f, Dict(a=>par.a))
@@ -104,19 +104,24 @@ begin
 	end	
 	sP = Symbolics.value(substitute(dfdx_subs, Dict(x=>par.P)))
 	fP = Symbolics.value(substitute(f_subs, Dict(x=>par.P)))
-	farr = [Symbolics.value(substitute(f_subs, Dict(x=>y))) for y in wind.x1:0.01:wind.x2]
-	maxf = maximum(farr[.!isnan.(farr)])
-	minf= minimum(farr[.!isnan.(farr)])
-	margin = 0.1*(maxf-minf)
+	TP = fP + sP*(x-par.P)
+end;
+
+# ╔═╡ 7ceea0d1-8939-4b3b-bf2b-a1b1760cfa4a
+begin
 	plot_widget = plot(f_subs,label=latexify(f_subs,env=:inline))
-	plot!(sP*(x-par.P)+fP,c=:red,label=latexify("tangent"))
-	scatter!([par.P],[fP],ms=4,c=:black,label=latexify("P"))
+	plot!(TP,c=:red,label=latexify("tangent"))
+	scatter!([par.P],[fP],ms=4,c=:black,label="")
 	annotate!(par.P+0.5, fP, latexify(string(round(sP,sigdigits=3))), :red)
 	if (par.plotd)
 		plot!(dfdx_subs,c=:red,ls=:dash,label=latexify(dfdx_subs,env=:inline))
 		dfdxP = Symbolics.value(substitute(dfdx_subs, Dict(x=>par.P)))
 		scatter!([par.P],[dfdxP],ms=3,c=:red,label="")
-	end	
+	end
+	farr = [Symbolics.value(substitute(f_subs, Dict(x=>y))) for y in wind.x1:0.01:wind.x2]
+	maxf = maximum(farr[.!isnan.(farr)])
+	minf= minimum(farr[.!isnan.(farr)])
+	margin = 0.1*(maxf-minf)
 	plot!([wind.x1,wind.x2],[0,0],ls=:dash,c=:black,label="")
 	xlims!(wind.x1,wind.x2)
 	if wind.ylimit
@@ -125,7 +130,9 @@ begin
 	else	
 		ylims!(minf-margin,maxf+margin)
 		plot!([0,0],[minf-margin,maxf+margin],ls=:dash,c=:black,label="")
-	end	
+	end
+	plot!(background_color_legend = RGBA(0,0,0,0.1))
+	plot!(foreground_color_legend = RGBA(0,0,0,0.3))
 end;
 
 # ╔═╡ 935cb98a-7268-4de1-86f4-24b7dd1b5549
@@ -1852,14 +1859,15 @@ version = "1.4.1+1"
 # ╠═8002c179-ca6f-41fc-b13b-46c5423fa3bc
 # ╟─c5b7b753-6fd7-45fa-ac08-50cba417c3ac
 # ╠═98ffe15a-be1f-44bb-94b8-074b8530a65b
-# ╟─935cb98a-7268-4de1-86f4-24b7dd1b5549
-# ╟─7fb84e83-cdf1-4fad-849d-f55a7898bb5c
-# ╟─904864b4-b6ac-4aa6-a630-26127730bd72
-# ╟─6dddcd75-96df-4fab-be2b-1728f268adf5
-# ╟─65db4e7d-7306-4136-a414-bb69a77f435a
-# ╟─7ceea0d1-8939-4b3b-bf2b-a1b1760cfa4a
-# ╟─e77f1171-c489-4a81-849a-16e107b3bb50
-# ╟─f95de1fa-fef7-4620-966e-e31dda738ea1
+# ╠═935cb98a-7268-4de1-86f4-24b7dd1b5549
+# ╠═7fb84e83-cdf1-4fad-849d-f55a7898bb5c
+# ╠═904864b4-b6ac-4aa6-a630-26127730bd72
+# ╠═6dddcd75-96df-4fab-be2b-1728f268adf5
+# ╠═65db4e7d-7306-4136-a414-bb69a77f435a
+# ╠═b654e63f-6d00-439a-9c12-3260e38a2b56
+# ╠═7ceea0d1-8939-4b3b-bf2b-a1b1760cfa4a
+# ╠═e77f1171-c489-4a81-849a-16e107b3bb50
+# ╠═f95de1fa-fef7-4620-966e-e31dda738ea1
 # ╟─ca01ea8f-4b35-4971-af37-31fbeaaa6762
 # ╟─0a51519a-0faf-4997-b230-b79d18902b69
 # ╟─afb14697-6bef-4f7e-a39a-fd6ad82b668c
