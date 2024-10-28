@@ -25,14 +25,14 @@ N $(@bind N Slider(1:40,default=10;show_value=true))
 # ╔═╡ fe92e6fe-285b-4f4f-a48f-c0e600183083
 t = range(0,step=2*pi/N,length=N)
 
+# ╔═╡ 6c9601c9-198d-4ba7-a19c-f411a8fc7bb4
+sn = [exp.(1im*n*t) for n = 0:N-1];
+
 # ╔═╡ 8d7d9125-5529-4845-9c95-3c76af9cc08c
-f = cos.(2*t)+0.3*cos.(7*t);
+f = 0.3*(rand(N) .-0.5) .+ cos.(3*t);
 
 # ╔═╡ ac6a9396-c8b4-455e-be53-dd182a9f490d
 plot(t,f,size=(1200,300))
-
-# ╔═╡ 6c9601c9-198d-4ba7-a19c-f411a8fc7bb4
-sn = [exp.(1im*n*t) for n = 0:N-1];
 
 # ╔═╡ abf11d58-95f7-422f-a8c9-295a426e41bb
 F = [sum(sn[k+1].*f) for k = 0:N-1];
