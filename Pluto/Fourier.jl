@@ -23,19 +23,26 @@ N $(@bind N Slider(1:40,default=10;show_value=true))
 """
 
 # ╔═╡ fe92e6fe-285b-4f4f-a48f-c0e600183083
-t = range(0,step=2*pi/N,length=N)
+t = range(0,step=2*pi/N,length=N);
+
+# ╔═╡ 8d7d9125-5529-4845-9c95-3c76af9cc08c
+f = exp.(-3*1im*t).+cos.(2*t);
+#f = @. abs(t-pi)/pi-0.5;
 
 # ╔═╡ 6c9601c9-198d-4ba7-a19c-f411a8fc7bb4
 sn = [exp.(1im*n*t) for n = 0:N-1];
 
-# ╔═╡ 8d7d9125-5529-4845-9c95-3c76af9cc08c
-f = 0.3*(rand(N) .-0.5) .+ cos.(3*t);
-
-# ╔═╡ ac6a9396-c8b4-455e-be53-dd182a9f490d
-plot(t,f,size=(1200,300))
-
 # ╔═╡ abf11d58-95f7-422f-a8c9-295a426e41bb
 F = [sum(sn[k+1].*f) for k = 0:N-1];
+
+# ╔═╡ ac6a9396-c8b4-455e-be53-dd182a9f490d
+begin
+	p0= plot(t,real(f),lw = 3, markershape=:circle, ms = 5)
+	for n = 2:Int64(N/2)
+		plot!(p0, t,real(F[n]*sn[n]+F[N-n+2]*sn[N-n+2])/N,markershape=:circle)
+	end	
+	plot!(p0,size=(1200,400),legend=false)
+end	
 
 # ╔═╡ 01761253-06b0-409b-9874-48868d0139f7
 md"""
@@ -44,9 +51,9 @@ k $(@bind k Slider(0:N-1,default=0;show_value=true))
 
 # ╔═╡ 106a9c57-9fa1-4793-a0d1-8b7f90a9285f
 begin
-	plot(0:N-1,real(F))
-	plot!(0:N-1,imag(F),size=(1200,300))
-	scatter!([k],[abs(F[k+1])],legend=false)
+	plot(0:N-1,real(F),lw=5,st=:sticks)
+	plot!(0:N-1,imag(F),st=:sticks,lw=5,size=(1200,300))
+	scatter!([k],[abs(F[k+1])],ms=10,legend=false)
 end	
 
 # ╔═╡ 0d4b3231-9a10-4da6-b8d8-1182c6d5562f
@@ -56,9 +63,9 @@ begin
 	plot!(p1,[-1.1,1.1],[0,0],c=:black,ls=:dash)
 	plot!(p1,[0,0],[-1.1,1.1],c=:black,ls=:dash)
 	scatter!(p1,real(sn[k+1]),imag(sn[k+1]),size=(800,400),legend=false)
-	p2 = scatter(0:N-1,real(sn[k+1]),c=2)
-	plot!(0:N-1,real(sn[k+1]),c=2)
-	plot!(p2,0:N-1,f,legend=false,markershape=:circle,c=1)
+	p2 = plot(0:N-1,real(f),legend=false,markershape=:circle,c=1,lw=3)
+	scatter!(p2,0:N-1,real(sn[k+1]),c=RGBA(0.6,0.3,0.0,0.2),markerstrokewidth=0)
+	plot!(0:N-1,real(sn[k+1]),c=RGBA(0.9,0.6,0.0,0.9))
 	plot(p1,p2,layout=(1,2))
 end	
 
@@ -1210,9 +1217,9 @@ version = "1.4.1+1"
 # ╠═1f093de0-9501-11ef-30d2-4f854ecfb2e5
 # ╠═fe92e6fe-285b-4f4f-a48f-c0e600183083
 # ╠═6c9601c9-198d-4ba7-a19c-f411a8fc7bb4
+# ╠═abf11d58-95f7-422f-a8c9-295a426e41bb
 # ╠═8d7d9125-5529-4845-9c95-3c76af9cc08c
 # ╟─ac6a9396-c8b4-455e-be53-dd182a9f490d
-# ╠═abf11d58-95f7-422f-a8c9-295a426e41bb
 # ╟─106a9c57-9fa1-4793-a0d1-8b7f90a9285f
 # ╟─0d4b3231-9a10-4da6-b8d8-1182c6d5562f
 # ╟─01761253-06b0-409b-9874-48868d0139f7
