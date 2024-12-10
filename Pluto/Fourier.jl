@@ -26,6 +26,7 @@ N $(@bind N Slider(1:40,default=10;show_value=true))
 t = range(0,step=2*pi/N,length=N);
 
 # ╔═╡ 8d7d9125-5529-4845-9c95-3c76af9cc08c
+#f = cos.(2*t)
 f = exp.(-3*1im*t).+cos.(2*t);
 #f = @. abs(t-pi)/pi-0.5;
 
@@ -66,6 +67,7 @@ begin
 	p2 = plot(0:N-1,real(f),legend=false,markershape=:circle,c=1,lw=3)
 	scatter!(p2,0:N-1,real(sn[k+1]),c=RGBA(0.6,0.3,0.0,0.2),markerstrokewidth=0)
 	plot!(0:N-1,real(sn[k+1]),c=RGBA(0.9,0.6,0.0,0.9))
+	plot!(0:N-1,real(sn[k+1].*f),markershape=:circle,markerstrokewidth=0, c=RGBA(0.6,0.6,0.6,0.3))
 	plot(p1,p2,layout=(1,2))
 end	
 
