@@ -17,7 +17,7 @@ macro bind(def, element)
 end
 
 # ╔═╡ 1f093de0-9501-11ef-30d2-4f854ecfb2e5
-using Plots, PlutoUI,Symbolics, Latexify, LaTeXStrings
+using Plots, PlutoUI,Symbolics, Latexify, LaTeXStrings, Measures
 
 # ╔═╡ 0cb016b6-c2fa-4ffb-9047-1869b7e11a91
 md"""
@@ -51,10 +51,23 @@ $+ ix - i\frac{1}{3!} x^3 + i\frac{1}{5!} x^5 - i\frac{1}{7!} x^7 + ...$
 
 """
 
+# ╔═╡ 66ed5572-84d7-4780-a983-161b854a9cc1
+md"""
+# Euler's Formula
+"""
+
+# ╔═╡ 86558140-3c35-4e7d-b534-4e71389b81f3
+md"""
+Every complex number $z$ can be expressed through their modulus $|z|$ and angle $\theta$ 
+as:
+
+$z = |z| e^{i\theta}$
+"""
+
 # ╔═╡ f46c59db-3ddc-4683-aaa2-4e443558901e
 md"""
-A $(@bind A Slider(0:0.01:2,default=1.0;show_value=true)) \
-θ $(@bind θ Slider(0:0.01:2*pi,default=0.0;show_value=true))
+|z| $(@bind A Slider(0:0.01:2,default=1.0;show_value=true)) \
+θ $(@bind θ Slider(0:0.01:6*pi,default=0.0;show_value=true))
 """
 
 # ╔═╡ 4fdc6730-94d7-4b83-b346-d620c7e92bb6
@@ -62,11 +75,110 @@ begin
 	x0 = A*cos(θ)
 	y0 = A*sin(θ)
 	plot([-2,2],[0,0],ls=:dash,c=:gray,label="",xlims=(-2,2),ylims=(-2,2),size=(500,500))
-	plot!([0,0],[-2,2],ls=:dash,c=:gray,label="")
+	plot!([0,0],[-2,2],ls=:dash,c=:gray,label="",xlabel="Real",ylabel="Imaginary")
 	plot!([0,x0],[0,y0],c=:black,label="")
 	plot!([x0,x0],[0,y0],ls=:dash,c=:red,label="")
 	plot!([0,x0],[y0,y0],ls=:dash,c=:red,label="")
 	scatter!([x0],[y0],c=:red,ms=5,label="")
+end	
+
+# ╔═╡ 83f8450d-3225-4f37-ba5d-9f510cf0d497
+md"""
+# Oscillations
+
+Elementary Oscillations (Pure Tones) can be expressed as a function of time as
+
+$s(t) = A e^{i\omega t}$
+
+This is a complex function of modulus $A$ and angle $\theta = \omega t$
+
+The real part of this function is
+
+$Re(s(t)) = A \cos(\omega t)$
+
+"""
+
+# ╔═╡ 8ba30273-6d98-439f-910c-f0bd589d543d
+begin
+	@bind t Clock(0.1)
+end
+
+# ╔═╡ a0af0068-1933-4760-9fc1-c7959b3f74b8
+md"""
+A $(@bind Amp Slider(0:0.01:2,default=1.0;show_value=true)) \
+ω $(@bind ω Slider(1.0:0.1:5.0,default=1.0;show_value=true))
+"""
+
+# ╔═╡ 50f48ea1-228c-493d-9d55-a2ada49248b7
+begin
+	x1 = Amp*cos(ω/10*t)
+	y1 = Amp*sin(ω/10*t)
+	p1 = plot([-2,2],[0,0],ls=:dash,c=:gray,label="",xlims=(-2,2),ylims=(-2,2))
+	plot!([0,0],[-2,2],ls=:dash,c=:gray,label="",xlabel="",ylabel="Amplitude")
+	plot!(Amp*cos.(0:pi/20:2*pi),Amp*sin.(0:pi/20:2*pi),ls=:dash,c=:green,label="")
+	plot!([0,x1],[y1,y1],ls=:dash,c=:blue,label="")
+	plot!([0,x1],[0,y1],c=:red,label="")
+	plot!([0,0],[0,y1],c=:blue,label="")
+	plot!([0,2],[y1,y1],ls=:dash,c=:blue,label="")
+	scatter!([x1],[y1],c=:red,ms=5,label="")
+	scatter!([0],[y1],c=:blue,ms=5,label="")
+	t2 = (0:pi/50:2*pi)
+	tc = mod(t/10,2*pi*floor(ω+0.3)/ω)
+	p2 = plot(t2,Amp*sin.(ω*t2),label="",ls=:dash,c=:green,ylims=(-2,2))
+	plot!([0,2*pi],[0,0],ls=:dash,c=:black,label="")
+	scatter!([tc],[y1],c=:blue,ms=5,label="",xlims=(0,2*pi))
+	plot!([0,tc],[y1,y1],c=:blue,ls=:dash,label="")
+	plot(p1,p2, layout=grid(1,2, widths=(1/3,2/3)), left_margin=[10mm -13mm],size=(1200,400))
+end	
+
+# ╔═╡ 7e060b26-118c-445b-be90-8034517ec277
+md"""
+# Sum of Oscillations
+"""
+
+# ╔═╡ c8bf120f-b2dc-4e90-90e7-12d2fdb1c660
+begin
+	@bind t_2 Clock(0.1)
+end
+
+# ╔═╡ 0e34247d-671a-46b3-be5b-3f4545d848f0
+md"""
+ω = 1 $(@bind A1 Slider(0:0.01:2,default=1.0;show_value=true)) 
+ϕ1 $(@bind ϕ1 Slider(0:0.01:2*pi,default=0.0;show_value=true)) \
+ω = 3 $(@bind A2 Slider(0:0.01:2,default=0.0;show_value=true)) 
+ϕ2 $(@bind ϕ2 Slider(0:0.01:2*pi,default=0.0;show_value=true)) \
+ω = 5 $(@bind A3 Slider(0:0.01:2,default=0.0;show_value=true))
+ϕ3 $(@bind ϕ3 Slider(0:0.01:2*pi,default=0.0;show_value=true)) 
+"""
+
+# ╔═╡ 52f0eb33-18b6-452d-a250-65a54d96080f
+begin
+	Amps = [A1, A2, A3]
+	ωs = [1,3,5]
+	ϕs = [ϕ1,ϕ2,ϕ3]
+	xs = Amps.*cos.(ωs/10*t_2 .+ ϕs)
+	ys = Amps.*sin.(ωs/10*t_2 .+ ϕs)
+	Amax = 6
+	p1b = plot([-Amax,Amax],[0,0],ls=:dash,c=:gray,label="",xlims=(-Amax,Amax),ylims=(-Amax,Amax))
+	plot!([0,0],[-Amax,Amax],ls=:dash,c=:gray,label="",xlabel="",ylabel="Amplitude")
+	#plot!(Amp*cos.(0:pi/20:2*pi),Amp*sin.(0:pi/20:2*pi),ls=:dash,c=:green,label="")
+	plot!([0,sum(xs)],[sum(ys),sum(ys)],ls=:dash,c=:blue,label="")
+	plot!([0,xs[1]],[0,ys[1]],c=:red,label="")
+	plot!([xs[1],xs[1]+xs[2]],[ys[1],ys[1]+ys[2]],c=:red,label="")
+	plot!([xs[1]+xs[2],sum(xs)],[ys[1]+ys[2],sum(ys)],c=:red,label="")
+	plot!([0,0],[0,sum(ys)],c=:blue,label="")
+	plot!([0,Amax],[sum(ys),sum(ys)],ls=:dash,c=:blue,label="")
+	scatter!([xs[1]],[ys[1]],c=:red,ms=4,alpha=0.6,label="")
+	scatter!([xs[1]+xs[2]],[ys[1]+ys[2]],c=:red,ms=4,alpha=0.6,label="")
+	scatter!([sum(xs)],[sum(ys)],c=:red,ms=5,label="")
+	scatter!([0],[sum(ys)],c=:blue,ms=5,label="")
+	#t2 = (0:pi/50:2*pi)
+	tc2 = mod(t_2/10,2*pi)
+	p2b = plot(t2,sum(Amps'.*sin.(t2*ωs' .+ ϕs'),dims=2),label="",ls=:dash,c=:green,ylims=(-Amax,Amax))
+	plot!([0,2*pi],[0,0],ls=:dash,c=:black,label="")
+	scatter!([tc2],[sum(ys)],c=:blue,ms=5,label="",xlims=(0,2*pi))
+	plot!([0,tc2],[sum(ys),sum(ys)],c=:blue,ls=:dash,label="")
+	plot(p1b,p2b, layout=grid(1,2, widths=(1/3,2/3)), left_margin=[10mm -13mm],size=(1200,400))
 end	
 
 # ╔═╡ 18267cb1-99b8-4ed4-8558-1de0bdae4795
@@ -76,7 +188,7 @@ main {
     max-width: 1000px;
 }
 input[type*="range"] {
-	width: 90%;
+	width: 40%;
 }
 </style>
 """
@@ -86,6 +198,7 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Latexify = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
+Measures = "442fdcdd-2543-5da2-b0f3-8c86c306513e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
@@ -93,6 +206,7 @@ Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 [compat]
 LaTeXStrings = "~1.4.0"
 Latexify = "~0.16.8"
+Measures = "~0.3.2"
 Plots = "~1.40.8"
 PlutoUI = "~0.7.60"
 Symbolics = "~6.18.3"
@@ -104,7 +218,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "bce9162b2f785e1b1a9ed8bab54ae7ddbb2fa46f"
+project_hash = "4eafbfa33d52dff30f7e81942a972748f384441b"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "be7ae030256b8ef14a441726c4c37766b90b93a3"
@@ -1823,8 +1937,18 @@ version = "1.9.2+0"
 # ╠═1f093de0-9501-11ef-30d2-4f854ecfb2e5
 # ╟─0cb016b6-c2fa-4ffb-9047-1869b7e11a91
 # ╟─9aed1478-bb99-4f89-afee-bd6c146782f2
-# ╠═4fdc6730-94d7-4b83-b346-d620c7e92bb6
-# ╠═f46c59db-3ddc-4683-aaa2-4e443558901e
+# ╟─66ed5572-84d7-4780-a983-161b854a9cc1
+# ╟─86558140-3c35-4e7d-b534-4e71389b81f3
+# ╟─4fdc6730-94d7-4b83-b346-d620c7e92bb6
+# ╟─f46c59db-3ddc-4683-aaa2-4e443558901e
+# ╟─83f8450d-3225-4f37-ba5d-9f510cf0d497
+# ╠═8ba30273-6d98-439f-910c-f0bd589d543d
+# ╟─a0af0068-1933-4760-9fc1-c7959b3f74b8
+# ╠═50f48ea1-228c-493d-9d55-a2ada49248b7
+# ╟─7e060b26-118c-445b-be90-8034517ec277
+# ╟─c8bf120f-b2dc-4e90-90e7-12d2fdb1c660
+# ╟─0e34247d-671a-46b3-be5b-3f4545d848f0
+# ╠═52f0eb33-18b6-452d-a250-65a54d96080f
 # ╠═18267cb1-99b8-4ed4-8558-1de0bdae4795
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
