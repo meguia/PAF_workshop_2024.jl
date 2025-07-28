@@ -100,8 +100,11 @@ $Re(s(t)) = A \cos(\omega t)$
 
 # ╔═╡ 8ba30273-6d98-439f-910c-f0bd589d543d
 begin
-	@bind t Clock(0.1)
+	@bind t Clock(0.5,true)
 end
+
+# ╔═╡ 0b577ad5-71e1-48e3-88dd-23c23ef12bac
+t
 
 # ╔═╡ a0af0068-1933-4760-9fc1-c7959b3f74b8
 md"""
@@ -111,8 +114,8 @@ A $(@bind Amp Slider(0:0.01:2,default=1.0;show_value=true)) \
 
 # ╔═╡ 50f48ea1-228c-493d-9d55-a2ada49248b7
 begin
-	x1 = Amp*cos(ω/10*t)
-	y1 = Amp*sin(ω/10*t)
+	x1 = Amp*cos(ω/10*(t-1))
+	y1 = Amp*sin(ω/10*(t-1))
 	p1 = plot([-2,2],[0,0],ls=:dash,c=:gray,label="",xlims=(-2,2),ylims=(-2,2))
 	plot!([0,0],[-2,2],ls=:dash,c=:gray,label="",xlabel="",ylabel="Amplitude")
 	plot!(Amp*cos.(0:pi/20:2*pi),Amp*sin.(0:pi/20:2*pi),ls=:dash,c=:green,label="")
@@ -123,7 +126,7 @@ begin
 	scatter!([x1],[y1],c=:red,ms=5,label="")
 	scatter!([0],[y1],c=:blue,ms=5,label="")
 	t2 = (0:pi/50:2*pi)
-	tc = mod(t/10,2*pi*floor(ω+0.3)/ω)
+	tc = mod((t-1)/10,2*pi*floor(ω+0.3)/ω)
 	p2 = plot(t2,Amp*sin.(ω*t2),label="",ls=:dash,c=:green,ylims=(-2,2))
 	plot!([0,2*pi],[0,0],ls=:dash,c=:black,label="")
 	scatter!([tc],[y1],c=:blue,ms=5,label="",xlims=(0,2*pi))
@@ -138,17 +141,17 @@ md"""
 
 # ╔═╡ c8bf120f-b2dc-4e90-90e7-12d2fdb1c660
 begin
-	@bind t_2 Clock(0.1)
+	@bind t_2 Clock(0.1,true)
 end
 
 # ╔═╡ 0e34247d-671a-46b3-be5b-3f4545d848f0
 md"""
-ω = 1 $(@bind A1 Slider(0:0.01:2,default=1.0;show_value=true)) 
-ϕ1 $(@bind ϕ1 Slider(0:0.01:2*pi,default=0.0;show_value=true)) \
-ω = 3 $(@bind A2 Slider(0:0.01:2,default=0.0;show_value=true)) 
-ϕ2 $(@bind ϕ2 Slider(0:0.01:2*pi,default=0.0;show_value=true)) \
-ω = 5 $(@bind A3 Slider(0:0.01:2,default=0.0;show_value=true))
-ϕ3 $(@bind ϕ3 Slider(0:0.01:2*pi,default=0.0;show_value=true)) 
+ω = 1 $(@bind A1 Slider(0:0.02:2,default=1.0;show_value=true)) 
+ϕ1 $(@bind ϕ1 Slider(0:0.02:6.28,default=0.0;show_value=true)) \
+ω = 3 $(@bind A2 Slider(0:0.02:2,default=0.0;show_value=true)) 
+ϕ2 $(@bind ϕ2 Slider(0:0.02:6.28,default=0.0;show_value=true)) \
+ω = 5 $(@bind A3 Slider(0:0.02:2,default=0.0;show_value=true))
+ϕ3 $(@bind ϕ3 Slider(0:0.02:6.28,default=0.0;show_value=true)) 
 """
 
 # ╔═╡ 52f0eb33-18b6-452d-a250-65a54d96080f
@@ -156,8 +159,8 @@ begin
 	Amps = [A1, A2, A3]
 	ωs = [1,3,5]
 	ϕs = [ϕ1,ϕ2,ϕ3]
-	xs = Amps.*cos.(ωs/10*t_2 .+ ϕs)
-	ys = Amps.*sin.(ωs/10*t_2 .+ ϕs)
+	xs = Amps.*cos.(ωs/10*(t_2-1) .+ ϕs)
+	ys = Amps.*sin.(ωs/10*(t_2-1) .+ ϕs)
 	Amax = 6
 	p1b = plot([-Amax,Amax],[0,0],ls=:dash,c=:gray,label="",xlims=(-Amax,Amax),ylims=(-Amax,Amax))
 	plot!([0,0],[-Amax,Amax],ls=:dash,c=:gray,label="",xlabel="",ylabel="Amplitude")
@@ -168,18 +171,47 @@ begin
 	plot!([xs[1]+xs[2],sum(xs)],[ys[1]+ys[2],sum(ys)],c=:red,label="")
 	plot!([0,0],[0,sum(ys)],c=:blue,label="")
 	plot!([0,Amax],[sum(ys),sum(ys)],ls=:dash,c=:blue,label="")
+	plot!(Amps[1]*cos.(0:pi/20:2*pi),Amps[1]*sin.(0:pi/20:2*pi),ls=:dash,c=:green,label="")
+	plot!(xs[1].+Amps[2]*cos.(0:pi/20:2*pi),ys[1].+Amps[2]*sin.(0:pi/20:2*pi),ls=:dash,c=:green,label="")
+	plot!(xs[2].+xs[1].+Amps[3]*cos.(0:pi/20:2*pi),ys[1].+ys[2].+Amps[3]*sin.(0:pi/20:2*pi),ls=:dash,c=:green,label="")
 	scatter!([xs[1]],[ys[1]],c=:red,ms=4,alpha=0.6,label="")
 	scatter!([xs[1]+xs[2]],[ys[1]+ys[2]],c=:red,ms=4,alpha=0.6,label="")
 	scatter!([sum(xs)],[sum(ys)],c=:red,ms=5,label="")
 	scatter!([0],[sum(ys)],c=:blue,ms=5,label="")
 	#t2 = (0:pi/50:2*pi)
-	tc2 = mod(t_2/10,2*pi)
+	tc2 = mod((t_2-1)/10,2*pi)
 	p2b = plot(t2,sum(Amps'.*sin.(t2*ωs' .+ ϕs'),dims=2),label="",ls=:dash,c=:green,ylims=(-Amax,Amax))
 	plot!([0,2*pi],[0,0],ls=:dash,c=:black,label="")
 	scatter!([tc2],[sum(ys)],c=:blue,ms=5,label="",xlims=(0,2*pi))
 	plot!([0,tc2],[sum(ys),sum(ys)],c=:blue,ls=:dash,label="")
 	plot(p1b,p2b, layout=grid(1,2, widths=(1/3,2/3)), left_margin=[10mm -13mm],size=(1200,400))
 end	
+
+# ╔═╡ 09a6bcc2-4a05-435f-92d0-b78dc7a5c321
+begin
+	xs0 = Amps.*cos.(ϕs)
+	ys0 = Amps.*sin.(ϕs)
+	p3a = plot([-Amax,Amax],[0,0],ls=:dash,c=:gray,label="",xlims=(-Amax,Amax),ylims=(-Amax,Amax))
+	plot!([0,0],[-Amax,Amax],ls=:dash,c=:gray,label="",xlabel="",ylabel="Amplitude")
+	plot!([0,xs0[1]],[0,ys0[1]],c=:red,label="")
+	plot!([xs0[1],xs0[1]+xs0[2]],[ys0[1],ys0[1]+ys0[2]],c=:red,label="")
+	plot!([xs0[1]+xs0[2],sum(xs0)],[ys0[1]+ys0[2],sum(ys0)],c=:red,label="")
+	plot!(Amps[1]*cos.(0:pi/20:2*pi),Amps[1]*sin.(0:pi/20:2*pi),ls=:dash,c=:green,label="")
+	plot!(xs0[1].+Amps[2]*cos.(0:pi/20:2*pi),ys0[1].+Amps[2]*sin.(0:pi/20:2*pi),ls=:dash,c=:green,label="")
+	plot!(xs0[2].+xs0[1].+Amps[3]*cos.(0:pi/20:2*pi),ys0[1].+ys0[2].+Amps[3]*sin.(0:pi/20:2*pi),ls=:dash,c=:green,label="")
+	scatter!([xs0[1]],[ys0[1]],c=:red,ms=4,alpha=0.6,label="")
+	scatter!([xs0[1]+xs0[2]],[ys0[1]+ys0[2]],c=:red,ms=4,alpha=0.6,label="")
+	scatter!([sum(xs0)],[sum(ys0)],c=:red,ms=5,label="")
+	p3b = plot(t2,sum(Amps'.*sin.(t2*ωs' .+ ϕs'),dims=2),label="",c=:green,ylims=(-14,Amax),xlims=(0,2*pi))
+	plot!([0,2*pi],[0,0],ls=:dash,c=:black,label="")
+	plot!(t2,Amps'.*sin.(t2*ωs' .+ ϕs').+[-12,-8,-4]',ls=:dash,c=:blue,label="")
+	plot(p3a,p3b, layout=grid(1,2, widths=(1/3,2/3)), left_margin=[10mm -13mm],size=(1200,400))
+end	
+
+# ╔═╡ b5e1f95c-dbb9-4f07-835e-f789dd08d337
+md"""
+ any smooth curve can be approximated to arbitrary accuracy with a sufficient number of epicycles
+"""
 
 # ╔═╡ 18267cb1-99b8-4ed4-8558-1de0bdae4795
 html"""
@@ -1943,12 +1975,15 @@ version = "1.9.2+0"
 # ╟─f46c59db-3ddc-4683-aaa2-4e443558901e
 # ╟─83f8450d-3225-4f37-ba5d-9f510cf0d497
 # ╠═8ba30273-6d98-439f-910c-f0bd589d543d
+# ╠═0b577ad5-71e1-48e3-88dd-23c23ef12bac
 # ╟─a0af0068-1933-4760-9fc1-c7959b3f74b8
 # ╠═50f48ea1-228c-493d-9d55-a2ada49248b7
 # ╟─7e060b26-118c-445b-be90-8034517ec277
 # ╟─c8bf120f-b2dc-4e90-90e7-12d2fdb1c660
 # ╟─0e34247d-671a-46b3-be5b-3f4545d848f0
-# ╠═52f0eb33-18b6-452d-a250-65a54d96080f
-# ╠═18267cb1-99b8-4ed4-8558-1de0bdae4795
+# ╟─52f0eb33-18b6-452d-a250-65a54d96080f
+# ╟─09a6bcc2-4a05-435f-92d0-b78dc7a5c321
+# ╟─b5e1f95c-dbb9-4f07-835e-f789dd08d337
+# ╟─18267cb1-99b8-4ed4-8558-1de0bdae4795
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
