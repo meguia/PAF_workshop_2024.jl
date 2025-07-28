@@ -100,11 +100,8 @@ $Re(s(t)) = A \cos(\omega t)$
 
 # ╔═╡ 8ba30273-6d98-439f-910c-f0bd589d543d
 begin
-	@bind t Clock(0.5,true)
+	@bind t_1 Clock(0.1,true,false,101,true)
 end
-
-# ╔═╡ 0b577ad5-71e1-48e3-88dd-23c23ef12bac
-t
 
 # ╔═╡ a0af0068-1933-4760-9fc1-c7959b3f74b8
 md"""
@@ -114,8 +111,9 @@ A $(@bind Amp Slider(0:0.01:2,default=1.0;show_value=true)) \
 
 # ╔═╡ 50f48ea1-228c-493d-9d55-a2ada49248b7
 begin
-	x1 = Amp*cos(ω/10*(t-1))
-	y1 = Amp*sin(ω/10*(t-1))
+	t1 = (t_1-1)*(2*pi)/100
+	x1 = Amp*cos(ω*t1)
+	y1 = Amp*sin(ω*t1)
 	p1 = plot([-2,2],[0,0],ls=:dash,c=:gray,label="",xlims=(-2,2),ylims=(-2,2))
 	plot!([0,0],[-2,2],ls=:dash,c=:gray,label="",xlabel="",ylabel="Amplitude")
 	plot!(Amp*cos.(0:pi/20:2*pi),Amp*sin.(0:pi/20:2*pi),ls=:dash,c=:green,label="")
@@ -125,12 +123,11 @@ begin
 	plot!([0,2],[y1,y1],ls=:dash,c=:blue,label="")
 	scatter!([x1],[y1],c=:red,ms=5,label="")
 	scatter!([0],[y1],c=:blue,ms=5,label="")
-	t2 = (0:pi/50:2*pi)
-	tc = mod((t-1)/10,2*pi*floor(ω+0.3)/ω)
-	p2 = plot(t2,Amp*sin.(ω*t2),label="",ls=:dash,c=:green,ylims=(-2,2))
+	t1b = (0:pi/50:2*pi)
+	p2 = plot(t1b,Amp*sin.(ω*t1b),label="",ls=:dash,c=:green,ylims=(-2,2),title=latexify("t=$(round(t1,digits=2))"))
 	plot!([0,2*pi],[0,0],ls=:dash,c=:black,label="")
-	scatter!([tc],[y1],c=:blue,ms=5,label="",xlims=(0,2*pi))
-	plot!([0,tc],[y1,y1],c=:blue,ls=:dash,label="")
+	scatter!([t1],[y1],c=:blue,ms=5,label="",xlims=(0,2*pi))
+	plot!([0,t1],[y1,y1],c=:blue,ls=:dash,label="")
 	plot(p1,p2, layout=grid(1,2, widths=(1/3,2/3)), left_margin=[10mm -13mm],size=(1200,400))
 end	
 
@@ -140,27 +137,26 @@ md"""
 """
 
 # ╔═╡ c8bf120f-b2dc-4e90-90e7-12d2fdb1c660
-begin
-	@bind t_2 Clock(0.1,true)
-end
+@bind t_2 Clock(0.1,true,false,101,false)
 
 # ╔═╡ 0e34247d-671a-46b3-be5b-3f4545d848f0
 md"""
 ω = 1 $(@bind A1 Slider(0:0.02:2,default=1.0;show_value=true)) 
 ϕ1 $(@bind ϕ1 Slider(0:0.02:6.28,default=0.0;show_value=true)) \
-ω = 3 $(@bind A2 Slider(0:0.02:2,default=0.0;show_value=true)) 
+ω = 2 $(@bind A2 Slider(0:0.02:2,default=0.0;show_value=true)) 
 ϕ2 $(@bind ϕ2 Slider(0:0.02:6.28,default=0.0;show_value=true)) \
-ω = 5 $(@bind A3 Slider(0:0.02:2,default=0.0;show_value=true))
+ω = 3 $(@bind A3 Slider(0:0.02:2,default=0.0;show_value=true))
 ϕ3 $(@bind ϕ3 Slider(0:0.02:6.28,default=0.0;show_value=true)) 
 """
 
 # ╔═╡ 52f0eb33-18b6-452d-a250-65a54d96080f
 begin
+	t2 = (t_2-1)*(2*pi)/100
 	Amps = [A1, A2, A3]
-	ωs = [1,3,5]
+	ωs = [1,2,3]
 	ϕs = [ϕ1,ϕ2,ϕ3]
-	xs = Amps.*cos.(ωs/10*(t_2-1) .+ ϕs)
-	ys = Amps.*sin.(ωs/10*(t_2-1) .+ ϕs)
+	xs = Amps.*cos.(ωs*t2 .+ ϕs)
+	ys = Amps.*sin.(ωs*t2 .+ ϕs)
 	Amax = 6
 	p1b = plot([-Amax,Amax],[0,0],ls=:dash,c=:gray,label="",xlims=(-Amax,Amax),ylims=(-Amax,Amax))
 	plot!([0,0],[-Amax,Amax],ls=:dash,c=:gray,label="",xlabel="",ylabel="Amplitude")
@@ -178,12 +174,10 @@ begin
 	scatter!([xs[1]+xs[2]],[ys[1]+ys[2]],c=:red,ms=4,alpha=0.6,label="")
 	scatter!([sum(xs)],[sum(ys)],c=:red,ms=5,label="")
 	scatter!([0],[sum(ys)],c=:blue,ms=5,label="")
-	#t2 = (0:pi/50:2*pi)
-	tc2 = mod((t_2-1)/10,2*pi)
-	p2b = plot(t2,sum(Amps'.*sin.(t2*ωs' .+ ϕs'),dims=2),label="",ls=:dash,c=:green,ylims=(-Amax,Amax))
-	plot!([0,2*pi],[0,0],ls=:dash,c=:black,label="")
-	scatter!([tc2],[sum(ys)],c=:blue,ms=5,label="",xlims=(0,2*pi))
-	plot!([0,tc2],[sum(ys),sum(ys)],c=:blue,ls=:dash,label="")
+	p2b = plot(t1b,sum(Amps'.*sin.(t1b*ωs' .+ ϕs'),dims=2),label="",ls=:dash,c=:green,ylims=(-Amax,Amax))
+	plot!([0,2*pi],[0,0],ls=:dash,c=:black,label="",title=latexify("t=$(round(t2,digits=2))"))
+	scatter!([t2],[sum(ys)],c=:blue,ms=5,label="",xlims=(0,2*pi))
+	plot!([0,t2],[sum(ys),sum(ys)],c=:blue,ls=:dash,label="")
 	plot(p1b,p2b, layout=grid(1,2, widths=(1/3,2/3)), left_margin=[10mm -13mm],size=(1200,400))
 end	
 
@@ -202,9 +196,9 @@ begin
 	scatter!([xs0[1]],[ys0[1]],c=:red,ms=4,alpha=0.6,label="")
 	scatter!([xs0[1]+xs0[2]],[ys0[1]+ys0[2]],c=:red,ms=4,alpha=0.6,label="")
 	scatter!([sum(xs0)],[sum(ys0)],c=:red,ms=5,label="")
-	p3b = plot(t2,sum(Amps'.*sin.(t2*ωs' .+ ϕs'),dims=2),label="",c=:green,ylims=(-14,Amax),xlims=(0,2*pi))
+	p3b = plot(t1b,sum(Amps'.*sin.(t1b*ωs' .+ ϕs'),dims=2),label="",c=:green,ylims=(-14,Amax),xlims=(0,2*pi))
 	plot!([0,2*pi],[0,0],ls=:dash,c=:black,label="")
-	plot!(t2,Amps'.*sin.(t2*ωs' .+ ϕs').+[-12,-8,-4]',ls=:dash,c=:blue,label="")
+	plot!(t1b,Amps'.*sin.(t1b*ωs' .+ ϕs').+[-12,-8,-4]',ls=:dash,c=:blue,label="")
 	plot(p3a,p3b, layout=grid(1,2, widths=(1/3,2/3)), left_margin=[10mm -13mm],size=(1200,400))
 end	
 
@@ -1974,8 +1968,7 @@ version = "1.9.2+0"
 # ╟─4fdc6730-94d7-4b83-b346-d620c7e92bb6
 # ╟─f46c59db-3ddc-4683-aaa2-4e443558901e
 # ╟─83f8450d-3225-4f37-ba5d-9f510cf0d497
-# ╠═8ba30273-6d98-439f-910c-f0bd589d543d
-# ╠═0b577ad5-71e1-48e3-88dd-23c23ef12bac
+# ╟─8ba30273-6d98-439f-910c-f0bd589d543d
 # ╟─a0af0068-1933-4760-9fc1-c7959b3f74b8
 # ╠═50f48ea1-228c-493d-9d55-a2ada49248b7
 # ╟─7e060b26-118c-445b-be90-8034517ec277
